@@ -23,4 +23,13 @@ Public traffic arrives through the Cloudflare Tunnel, not through port forwardin
 
 A reverse proxy is the single place to add headers, rate limits, or access rules later, instead of configuring every app separately.
 
-<!-- TODO: add one thing you fixed or learned in nginx (e.g. a proxy header, websocket setting, or 502 you debugged). -->
+
+## A problem I fixed: the search engine that never started
+
+My private search engine (SearXNG) sat in the `Created` state for 13 months without ever running. Its logs were empty, because no process had ever started.
+
+`docker inspect` held the answer in its error field: the container's port mapping tried to claim host port 52345, which my nginx site for the same service was already listening on ("address already in use"). Two things were fighting over one port.
+
+I fixed it by binding the container to `127.0.0.1:8889` (localhost only) and letting nginx, which listens on 52345, proxy to it. That also keeps the search engine off the open network, so the only way in is through nginx.
+
+Lesson: when a container won't start and its logs are empty, the failure happened before the app ran. Check `docker inspect` for the error instead of the logs.
