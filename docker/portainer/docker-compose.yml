@@ -1,0 +1,16 @@
+services:
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: always
+    ports:
+      - "9000:9000"
+    volumes:
+      # The Docker socket is root-equivalent on the host. Keep this UI behind
+      # an identity check (Cloudflare Access) and off the open LAN.
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+
+volumes:
+  portainer_data:
+    external: true                 # already exists from the original `docker run`

@@ -1,0 +1,14 @@
+services:
+  pihole:
+    image: pihole/pihole:latest
+    container_name: pihole
+    network_mode: host             # serves DNS on port 53 directly on the LAN address
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    environment:
+      TZ: ${TZ}
+      WEBPASSWORD: ${PIHOLE_WEBPASSWORD}
+    volumes:
+      - /mnt/data/pihole/etc-pihole:/etc/pihole
+      - /mnt/data/pihole/etc-dnsmasq.d:/etc/dnsmasq.d

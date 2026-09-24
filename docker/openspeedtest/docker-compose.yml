@@ -1,0 +1,8 @@
+services:
+  openspeedtest:
+    image: openspeedtest/latest
+    container_name: openspeedtest
+    restart: unless-stopped
+    ports:
+      - "6767:3000"                # HTTP
+      - "6768:3001"                # HTTPS

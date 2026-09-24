@@ -1,0 +1,12 @@
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    restart: unless-stopped        # was "no": the vault stayed down after a reboot
+    ports:
+      - "6969:80"
+    environment:
+      SIGNUPS_ALLOWED: "false"     # no open registration on a public instance
+      # DOMAIN: "https://vault.example.com"   # set this to use security-key (WebAuthn) 2FA
+    volumes:
+      - /vw-data:/data             # all vault data; back this up
