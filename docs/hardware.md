@@ -6,7 +6,7 @@
 |---|---|
 | Machine | Dell Precision T3500 workstation |
 | CPU | Intel Xeon W3565 @ 3.2 GHz |
-| RAM | 12 GB |
+| RAM | 12 GB ECC|
 | Boot disk | 477 GB, mounted at `/` |
 | Data disk | 3.6 TB, mounted at `/mnt/data` (NAS share) |
 | GPU | NVIDIA GeForce GT 1030 (GP108), HDMI (replaced a Quadro 5000) |
