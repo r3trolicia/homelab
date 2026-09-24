@@ -1,0 +1,24 @@
+server {
+    listen 8181;
+    server_name cli.r3tro.xyz;
+
+    access_log /var/log/nginx/cli_access.log;
+    error_log /var/log/nginx/cli_error.log;
+
+    root /var/www/cli.r3tro.xyz;
+
+    location = /info {
+        default_type text/plain;
+        alias /var/www/cli.r3tro.xyz/modules/info.txt;
+    }
+
+    location = /pgp {
+        default_type text/plain;
+        alias /var/www/cli.r3tro.xyz/modules/pgp.txt;
+    }
+
+    location = /uptime {
+        default_type text/plain;
+        proxy_pass http://127.0.0.1:8182;
+    }
+}

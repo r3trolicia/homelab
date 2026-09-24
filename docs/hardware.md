@@ -24,7 +24,6 @@ An AWOW AK34 mini PC (Intel Celeron J3455, 4 cores at 1.5 GHz) with two NICs run
 ## Switching and wireless
 
 - TP-Link TL-SG105 (unmanaged 5-port) in my room
-- Wireless access point on the switch
+- TP-Link TL-WA801N (N300, 2.4 GHz) wireless access point on the switch
 - ISP router in bridge mode in the living room
 
-<!-- TODO: add the access point model. -->

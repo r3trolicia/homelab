@@ -1,0 +1,11 @@
+server {
+    listen 8085;
+    server_name r3tro.xyz www.r3tro.xyz;
+
+    root /var/www/r3tro_local;
+    index index.html;
+
+    location / {
+        try_files $uri $uri.html $uri/ =404;
+    }
+}

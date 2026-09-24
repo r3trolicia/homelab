@@ -57,7 +57,7 @@ Compose files and per-service notes: [docker/README.md](docker/README.md).
 |---|---|
 | Server | Dell Precision T3500, Xeon W3565 @ 3.2 GHz, 12 GB RAM, 477 GB boot disk, 4 TB data disk, Debian 12 |
 | Router | AWOW AK34 mini PC (Intel Celeron J3455, 4 cores), two NICs, running OPNsense |
-| Switching | TP-Link TL-SG105 unmanaged 5-port switch, wireless access point |
+| Switching | TP-Link TL-SG105 unmanaged 5-port switch, TP-Link TL-WA801N access point |
 
 More in [docs/hardware.md](docs/hardware.md).
 

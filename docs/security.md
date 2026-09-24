@@ -48,7 +48,7 @@ Reading my own `ufw status`, `ss -tulpn`, `docker ps`, and `systemctl status` ou
 - [ ] Restrict the CasaOS gateway (port 81) and the port-9090 web console to the LAN or Tailscale only
 - [ ] Vaultwarden: close signups (`SIGNUPS_ALLOWED=false`), `restart: unless-stopped`, 2FA on every account
 - [ ] Rate limiting or an Access policy for the other published apps
-- [ ] VLANs in OPNsense: trusted (PCs, server), IoT/consoles, guests. Needs a VLAN-capable managed switch to replace the unmanaged TL-SG105 (an 802.1Q "smart" 5-port such as the TL-SG105E is inexpensive), plus an access point that can tag VLANs
+- [ ] VLANs in OPNsense: trusted (PCs, server), IoT/consoles, guests. Needs a VLAN-capable managed switch to replace the unmanaged TL-SG105 (an 802.1Q "smart" 5-port such as the TL-SG105E is inexpensive), plus an access point that can put different SSIDs on different VLANs (check whether the TL-WA801N can; if not, it needs replacing too)
 - [ ] SSH: key-only authentication, password login off, rate limiting with fail2ban
 - [ ] Pin container images to version tags and update on a schedule after reading release notes
 - [ ] Offsite backup copy, and automate the external-drive copy (3-2-1: three copies, two media, one offsite)

@@ -1,0 +1,34 @@
+server {
+    listen 8181;
+    server_name cli.r3tro.xyz;
+
+    root /var/www/cli/html;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    location /pgp {
+        default_type text/plain;
+        alias /var/www/cli/scripts/pgp;
+    }
+
+    location /help {
+        default_type text/plain;
+        alias /var/www/cli/scripts/help;
+    }
+
+    location /info {
+        default_type text/plain;
+        return 200 "r3tro.xyz CLI Service\nAdmin: Adrian\nStatus: Online\n";
+    }
+
+    location /uptime {
+        default_type text/plain;
+        rewrite ^/uptime$ /scripts/uptime.sh break;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME /var/www/cli/scripts/uptime.sh;
+        fastcgi_pass unix:/var/run/fcgiwrap.socket;
+    }
+}

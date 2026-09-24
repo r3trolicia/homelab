@@ -1,0 +1,10 @@
+services:
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: jellyfin
+    user: "${UID}:${GID}"
+    network_mode: host
+    volumes:
+      - ./config:/config
+      - /mnt/data/share/media:/media:ro
+    restart: unless-stopped

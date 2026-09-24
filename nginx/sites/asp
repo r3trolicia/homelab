@@ -1,0 +1,11 @@
+server {
+    listen 4202;
+    server_name localhost;
+
+    root /mnt/data/share/asp-website;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
