@@ -71,6 +71,20 @@ Rules are per interface and first match wins. Aliases: `PRIVATE_NETS` (RFC1918),
 
 On SERVERS, GUEST, and IOT, destination NAT redirects any DNS query not aimed at the firewall to Unbound. Hardcoded resolvers can't bypass filtering.
 
+## Verification
+
+Tested right after the rollout:
+
+| Test | Expected | Result |
+|---|---|---|
+| Phone on cellular via Tailscale → server SSH, firewall UI | Works | Pass (after approving the subnet routes in the Tailscale admin console) |
+| PC → server SSH, PS4 FTP | Works | Pass |
+| Server → PC | Blocked | Pass |
+| Guest and non-admin trusted devices → firewall UI | Blocked, internet works | Pass |
+| `iperf3` PC (VLAN 20) → server (VLAN 30), routed by OPNsense | Close to gigabit | **932 Mbit/s** (~116 MB/s) |
+
+Routing between VLANs on the J3455 runs at essentially line rate, so segmentation cost no measurable throughput.
+
 ## Why this design
 
 - **Bridge mode on the ISP router.** Avoids double NAT and makes OPNsense the single place where firewall policy lives.

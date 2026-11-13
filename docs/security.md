@@ -25,6 +25,29 @@ How the network is defended today, what I found when I audited my own setup, and
 | Secrets | Passwords in a self-hosted Vaultwarden with scheduled backups; no secrets in this repo, enforced by a gitleaks pre-commit hook |
 | Backups | Media and photos copied to an external drive |
 
+## Segmentation: what a compromise can reach
+
+The VLAN policy is easiest to judge by asking what an attacker gets from each foothold. Trusted devices can start connections anywhere; nothing can start a connection into trusted.
+
+| If this is compromised… | …it can reach | …it cannot reach |
+|---|---|---|
+| An IoT device (smart bulb, streaming stick) | The internet, DNS | PCs, laptop, phone, server, NAS, any admin page |
+| A guest's phone | The internet, rate-limited | Any private address; other guests (client isolation) |
+| The homelab server (e.g. a vulnerable container) | The internet | PCs, laptop, phone, console. It can't pivot to the machines holding my sessions and keys |
+| The game console | Nothing | The internet and every other VLAN |
+| A non-admin device on trusted Wi-Fi | Internet, server services | Switch, AP, and firewall admin pages |
+| A leaked guest Wi-Fi password | The internet | Everything private |
+
+Supporting controls: only a short list of admin hosts can open management pages; DNS from servers, guest, and IoT is forced through the firewall's resolver; remote admin comes in over Tailscale on its own firewall interface; and no WAN port is open.
+
+### Known gaps
+
+- The management VLAN still carries a few legacy clients until the old AP and lab bench move to their own VLANs.
+- Wi-Fi is WPA2-AES, not WPA3 (the AP's standalone firmware doesn't offer it here).
+- The managed switch's web UI is plain HTTP; only admin hosts can reach it.
+- One router is a single point of failure; a current config export keeps a rebuild short.
+- Inside a VLAN, host firewalls still matter: Docker can bypass UFW, so the per-host items below still apply.
+
 ## What I found auditing my own setup
 
 Reading my own `ufw status`, `ss -tulpn`, `docker ps`, and `systemctl status` output turned up several things. Writing them down is the point: a hardening plan starts with an honest inventory.
@@ -52,6 +75,7 @@ Reading my own `ufw status`, `ss -tulpn`, `docker ps`, and `systemctl status` ou
 - [x] VLANs in OPNsense: trusted, servers, console sandbox, guest, IoT, lab, on a TL-SG108E managed switch and an Omada EAP225 with per-VLAN SSIDs
 - [ ] Finish the IoT and lab VLAN rollout (old AP on VLAN 60, bench switch on VLAN 70), then lock down the management VLAN
 - [ ] Keep an encrypted, off-box copy of the OPNsense config backup
+- [ ] Re-scope UFW rules from the old flat `10.0.0.0/24` to the trusted VLAN `10.0.20.0/24`, and allow the router address for Tailscale-routed traffic
 - [ ] SSH: key-only authentication, password login off, rate limiting with fail2ban
 - [ ] Pin container images to version tags and update on a schedule after reading release notes
 - [ ] Offsite backup copy, and automate the external-drive copy (3-2-1: three copies, two media, one offsite)
