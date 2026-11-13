@@ -15,18 +15,19 @@ Most of what people use online is rented from a handful of companies that can ch
 ```mermaid
 flowchart TD
     ISP(["ISP coax"]) --> MODEM["ISP router<br/>bridge mode"]
-    MODEM -->|"WAN NIC"| FW["OPNsense mini PC<br/>dual NICs, living room<br/>firewall, routing, monitoring"]
-    FW -->|"LAN NIC"| SW["5-port switch<br/>my room"]
-    SW --- PC["Main Linux PC"]
-    SW --- WAP["Wireless AP"]
-    SW --- PS4["PS4"]
-    SW --- LAB["Homelab server<br/>Debian 12, 10.0.0.128<br/>Docker, nginx, Samba"]
+    MODEM -->|"WAN NIC"| FW["OPNsense mini PC<br/>dual NICs, living room<br/>firewall, routing, VLANs, Tailscale"]
+    FW -->|"802.1Q trunk"| SW["TL-SG108E managed switch<br/>my room"]
+    SW ---|"VLAN 20"| PC["Main Linux PC"]
+    SW ---|"trunk"| WAP["Omada EAP225<br/>trusted + guest SSIDs"]
+    SW ---|"VLAN 40"| PS4["PS4 (offline)"]
+    SW ---|"VLAN 30"| LAB["Homelab server<br/>Debian 12, 10.0.30.10<br/>Docker, nginx, Samba"]
 ```
 
 - **Edge:** the ISP router runs in bridge mode, so the OPNsense box is the only router and firewall (no double NAT, one place for policy).
+- **Segmentation:** seven VLANs (management, trusted, servers, a sandbox for the console, guest, IoT, lab). Trusted devices can start connections anywhere, and nothing can start connections into trusted.
 - **Internet access to my services:** through a Cloudflare Zero Trust tunnel, so no inbound ports are opened on the router.
-- **Private remote access:** Tailscale.
-- **Details:** [network/README.md](network/README.md) has addressing, cabling, and the remote-access flow.
+- **Private remote access:** Tailscale, running on the firewall as a subnet router.
+- **Details:** [network/README.md](network/README.md) has VLANs, switch ports, firewall policy, and the remote-access flow.
 
 ## What it runs
 
@@ -56,8 +57,9 @@ Compose files and per-service notes: [docker/README.md](docker/README.md).
 | Role | Hardware |
 |---|---|
 | Server | Dell Precision T3500, Xeon W3565 @ 3.2 GHz, 12 GB RAM, 477 GB boot disk, 4 TB data disk, Debian 12 |
-| Router | AWOW AK34 mini PC (Intel Celeron J3455, 4 cores), two NICs, running OPNsense |
-| Switching | TP-Link TL-SG105 unmanaged 5-port switch, TP-Link TL-WA801N access point |
+| Router | AWOW AK34 mini PC (Intel Celeron J3455, 4 cores), two NICs, running OPNsense 26.1 |
+| Switching | TP-Link TL-SG108E managed 8-port switch (802.1Q) |
+| Wireless | TP-Link Omada EAP225 (AC1350, dual-band, VLAN-tagged SSIDs); old TL-WA801N kept for IoT |
 
 More in [docs/hardware.md](docs/hardware.md).
 

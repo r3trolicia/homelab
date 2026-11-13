@@ -14,11 +14,12 @@ How the network is defended today, what I found when I audited my own setup, and
 | Layer | What I did |
 |---|---|
 | Perimeter | ISP router in bridge mode; OPNsense is the only router/firewall, default-deny for inbound WAN traffic; no port forwards |
+| Segmentation | Seven VLANs with per-interface rules: trusted can start connections anywhere; servers, console, guest, and IoT can't start connections into private networks; the console has no internet; guest Wi-Fi has client isolation |
 | Exposure | Only selected apps are published, through a Cloudflare Zero Trust tunnel that the server opens outbound |
 | Identity | Admin surfaces (Portainer, SSH) require a Cloudflare Access identity check before they are reachable |
-| Remote admin | Tailscale (WireGuard-based mesh VPN) for private access to the server |
+| Remote admin | Tailscale on the firewall as a subnet router (no open WAN ports); remote devices get their own firewall interface |
 | Host firewall | UFW on the server: default deny incoming, explicit allow rules per service |
-| DNS | Pi-hole for network-wide tracker and malware-domain blocking |
+| DNS | Unbound on OPNsense for every VLAN; DNS on servers, guest, and IoT is forced through it by destination NAT; Pi-hole on the server for tracker and malware-domain blocking |
 | Monitoring | OPNsense monitoring at the network edge; Uptime Kuma for service health |
 | Data access | Samba share limited to one authenticated user; no guest access |
 | Secrets | Passwords in a self-hosted Vaultwarden with scheduled backups; no secrets in this repo, enforced by a gitleaks pre-commit hook |
@@ -32,7 +33,7 @@ Reading my own `ufw status`, `ss -tulpn`, `docker ps`, and `systemctl status` ou
 2. **Docker bypasses UFW.** Published container ports are wired into iptables ahead of UFW's rules, so my allow-list does not actually gate them. The perimeter still protects me from the internet, but any device on my LAN can reach them.
 3. **Admin interfaces listen on every interface.** Portainer, a web console on port 9090, and the CasaOS gateway on port 81 are reachable from the whole LAN. They should listen on localhost or the Tailscale address only.
 4. **Stale firewall rules.** Several UFW rules allow ports no current service uses. Unused allow rules are attack surface with no benefit.
-5. **Flat network.** The server, gaming PC, PS4, and wireless clients share one subnet. Anything on Wi-Fi can talk to the server.
+5. **Flat network.** The server, gaming PC, PS4, and wireless clients shared one subnet, so anything on Wi-Fi could talk to the server. *Fixed November 2026:* VLANs separate trusted, servers, console, guest, and IoT (see [network/README.md](../network/README.md)).
 6. **Public password vault on default settings.** Vaultwarden is reachable from the internet, but nothing overrides its defaults: registration is probably open, and its restart policy was `no`, so a reboot left the vault down. The admin page is already off because no admin token is set, which is the right default.
 7. **Floating image tags.** Most containers use `:latest`, so an update can change behavior without me choosing it.
 8. **Memory pressure.** Swap is fully used and free RAM is near zero, which is a reliability risk.
@@ -48,7 +49,9 @@ Reading my own `ufw status`, `ss -tulpn`, `docker ps`, and `systemctl status` ou
 - [ ] Restrict the CasaOS gateway (port 81) and the port-9090 web console to the LAN or Tailscale only
 - [ ] Vaultwarden: close signups (`SIGNUPS_ALLOWED=false`), `restart: unless-stopped`, 2FA on every account
 - [ ] Rate limiting or an Access policy for the other published apps
-- [ ] VLANs in OPNsense: trusted (PCs, server), IoT/consoles, guests. Needs a VLAN-capable managed switch to replace the unmanaged TL-SG105 (an 802.1Q "smart" 5-port such as the TL-SG105E is inexpensive), plus an access point that can put different SSIDs on different VLANs (check whether the TL-WA801N can; if not, it needs replacing too)
+- [x] VLANs in OPNsense: trusted, servers, console sandbox, guest, IoT, lab, on a TL-SG108E managed switch and an Omada EAP225 with per-VLAN SSIDs
+- [ ] Finish the IoT and lab VLAN rollout (old AP on VLAN 60, bench switch on VLAN 70), then lock down the management VLAN
+- [ ] Keep an encrypted, off-box copy of the OPNsense config backup
 - [ ] SSH: key-only authentication, password login off, rate limiting with fail2ban
 - [ ] Pin container images to version tags and update on a schedule after reading release notes
 - [ ] Offsite backup copy, and automate the external-drive copy (3-2-1: three copies, two media, one offsite)
